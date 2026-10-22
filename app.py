@@ -6,16 +6,30 @@ import time
 import zipfile
 
 import pandas as pd
+from werkzeug.exceptions import HTTPException
 from flask import Flask, Response, abort, render_template, request, send_file
 
 from report_builder import (DESTINO_DEFECTO, cargar_barcodes, generar_reportes,
                             parsear_barcodes_extra)
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-MODELO = os.path.join(BASE, "modelo", "modelo.xlsx")
-BARCODES = os.path.join(BASE, "barcodes.csv")
 
-app = Flask(__name__)
+
+def _primero(*rutas):
+    """Primera ruta que exista (acepta archivos en carpetas o sueltos en la raíz)."""
+    for r in rutas:
+        if os.path.exists(r):
+            return r
+    return rutas[0]
+
+
+MODELO = _primero(os.path.join(BASE, "modelo", "modelo.xlsx"), os.path.join(BASE, "modelo.xlsx"))
+BARCODES = os.path.join(BASE, "barcodes.csv")
+_TPL = os.path.join(BASE, "templates")
+if not os.path.exists(os.path.join(_TPL, "index.html")):
+    _TPL = BASE
+
+app = Flask(__name__, template_folder=_TPL)
 app.config["MAX_CONTENT_LENGTH"] = 30 * 1024 * 1024
 
 _CACHE = {}          # token -> {"ts": float, "files": [(nombre, bytes)]}   (se usa 1 solo worker)
@@ -38,6 +52,15 @@ def _auth():
     if a and a.password and hmac.compare_digest(a.password, pwd):
         return None
     return Response("Acceso restringido", 401, {"WWW-Authenticate": 'Basic realm="Reportes de produccion"'})
+
+
+@app.errorhandler(Exception)
+def _error(e):
+    """Muestra el error real en pantalla (la app ya está protegida por contraseña)."""
+    if isinstance(e, HTTPException):
+        return e
+    app.logger.exception("Error no controlado")
+    return Response(f"Error en la aplicación: {type(e).__name__}: {e}", 500, {"Content-Type": "text/plain; charset=utf-8"})
 
 
 @app.get("/healthz")
