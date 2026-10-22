@@ -1,78 +1,225 @@
+{%- macro n0(x) -%}{{ '{:,.0f}'.format(x).replace(',', '.') }}{%- endmacro -%}
+{%- macro n3(x) -%}{{ '{:,.3f}'.format(x).replace(',', 'X').replace('.', ',').replace('X', '.') }}{%- endmacro -%}
+{%- macro n2(x) -%}{{ '{:.2f}'.format(x).replace('.', ',') }}{%- endmacro -%}
 <!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reporte de producción · Kosher USA</title>
+<title>Reporte de producción · Kosher</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316a34a'/%3E%3Cpath d='M18 33l10 10 18-22' fill='none' stroke='white' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-  :root{--bg:#f4f6f8;--card:#fff;--tx:#1d2733;--mut:#5f6c7b;--ac:#1f5fa8;--bd:#d9e0e7;--warn:#fff4d6;--wbd:#e8c766;--err:#fde8e8;--ebd:#e19b9b}
-  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
-  main{max-width:900px;margin:0 auto;padding:28px 18px 60px}
-  h1{font-size:1.45rem;margin:0 0 4px} p.sub{margin:0 0 22px;color:var(--mut)}
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-bottom:18px}
-  label{display:block;font-weight:600;margin:0 0 6px} .hint{font-weight:400;color:var(--mut);font-size:.88rem}
-  input[type=text],textarea{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:6px;font:inherit}
-  textarea{min-height:70px;font-family:ui-monospace,Consolas,monospace;font-size:.9rem}
-  input[type=file]{width:100%;padding:12px;border:1px dashed var(--bd);border-radius:6px;background:#fafbfc}
-  .row{margin-bottom:16px} details summary{cursor:pointer;color:var(--ac);font-weight:600;margin-bottom:10px}
-  button,.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
-  .btn.sec{background:#e8eef5;color:var(--ac)}
-  table{width:100%;border-collapse:collapse;font-size:.92rem} th,td{padding:8px 6px;border-bottom:1px solid var(--bd);text-align:right}
-  th:first-child,td:first-child{text-align:left} th{color:var(--mut);font-weight:600}
-  .msg{border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:.93rem} .warn{background:var(--warn);border:1px solid var(--wbd)} .err{background:var(--err);border:1px solid var(--ebd)}
-  ul{margin:6px 0 0 18px;padding:0} .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  :root{
+    --bg:#f3f6fb; --card:#ffffff; --tx:#0f1b2d; --mut:#5b6b82; --bd:#e1e8f1; --soft:#f7f9fc;
+    --blue:#2563eb; --blue-d:#1d4ed8; --blue-l:#e8f0ff;
+    --green:#16a34a; --green-t:#15803d; --green-l:#e8f7ee; --green-bd:#a9dcbc;
+    --red:#d92d20; --red-l:#fdecea; --red-bd:#f4b4ae;
+    --amb:#a15c00; --amb-l:#fff6e0; --amb-bd:#f0d28a;
+    --sh:0 1px 2px rgba(15,27,45,.05),0 8px 24px rgba(15,27,45,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#0c1320; --card:#121c2e; --tx:#e8eef8; --mut:#93a3bb; --bd:#22314a; --soft:#0f192a;
+      --blue:#5b8dff; --blue-d:#7da3ff; --blue-l:#16264a; --green:#3ccf6e; --green-t:#5be08a; --green-l:#12301f; --green-bd:#245c3a; --red:#ff6b5e; --red-l:#341a1a; --red-bd:#6e2f2b;
+      --amb:#f0b650; --amb-l:#2d2410; --amb-bd:#5d4a1c; --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45}
+  .top{background:var(--card);border-bottom:1px solid var(--bd);color:var(--tx);padding:22px 20px}
+  .wrap{max-width:960px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:46px;height:46px;border-radius:12px;background:var(--green-l);color:var(--green);display:grid;place-items:center;flex:none}
+  .brand h1{margin:0;font-size:1.5rem;letter-spacing:-.01em}
+  .brand p{margin:2px 0 0;color:var(--mut);font-size:.95rem}
+  main{max-width:960px;margin:24px auto 60px;padding:0 20px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);padding:22px;margin-bottom:18px}
+  h2{font-size:1.05rem;margin:0 0 14px}
+
+  /* carga */
+  .drop{font-weight:400;border:2px dashed var(--bd);border-radius:14px;background:var(--soft);padding:30px 18px;text-align:center;cursor:pointer;transition:.15s}
+  .drop:hover,.drop.over{border-color:var(--blue);background:var(--blue-l)}
+  .drop svg{color:var(--blue)} .drop strong{display:block;margin:8px 0 2px;font-size:1.02rem}
+  .drop span{color:var(--mut);font-size:.9rem}
+  .drop input{display:none}
+  .files{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+  .files li{display:flex;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;font-size:.92rem}
+  .files li small{margin-left:auto;color:var(--mut)}
+  details{margin-top:16px} summary{cursor:pointer;color:var(--blue);font-weight:600;font-size:.94rem}
+  .opt{display:grid;gap:14px;margin-top:12px}
+  label{display:block;font-weight:600;font-size:.9rem;margin-bottom:5px}
+  .hint{color:var(--mut);font-weight:400;font-size:.84rem}
+  input[type=text],textarea{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit}
+  textarea{min-height:72px;font-family:ui-monospace,Consolas,monospace;font-size:.88rem}
+  input:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:1px}
+  .go{margin-top:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  button.main,a.main{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px 24px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:.15s;box-shadow:0 4px 14px rgba(37,99,235,.35)}
+  button.main:hover,a.main:hover{background:var(--blue-d)} button.main:disabled{opacity:.75;cursor:wait}
+  .spin{width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:r .8s linear infinite;display:none}
+  .loading .spin{display:inline-block} @keyframes r{to{transform:rotate(360deg)}}
+  .wait{color:var(--mut);font-size:.88rem;display:none} .loading ~ .wait{display:block}
+
+  /* resultados */
+  .banner{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:16px;margin-bottom:18px;border:1px solid}
+  .banner.ok{background:var(--green-l);border-color:var(--green-bd);color:var(--tx)}
+  .banner.bad{background:var(--red-l);border-color:var(--red-bd)}
+  .banner h2{margin:0;font-size:1.12rem} .banner p{margin:2px 0 0;color:var(--mut);font-size:.92rem}
+  .tick{width:46px;height:46px;flex:none}
+  .tick circle{fill:var(--green)} .tick path{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:d .55s .15s ease-out forwards}
+  @keyframes d{to{stroke-dashoffset:0}}
+  .alarm{width:46px;height:46px;flex:none;animation:p 1.6s ease-in-out infinite}
+  @keyframes p{50%{transform:scale(1.08)}}
+  .rep{border-left:5px solid var(--green)} .rep.bad{border-left-color:var(--red)}
+  .rh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .rh .date{font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
+  .tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px 4px 8px;font-size:.84rem;font-weight:700}
+  .tag.ok{background:var(--green-l);color:var(--green-t)} .tag.bad{background:var(--red-l);color:var(--red)}
+  .tag svg{width:18px;height:18px}
+  .dl{margin-left:auto;background:var(--blue);color:#fff;text-decoration:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:.92rem;display:inline-flex;gap:8px;align-items:center}
+  .dl:hover{background:var(--blue-d)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .kpi{background:var(--soft);border:1px solid var(--bd);border-radius:12px;padding:10px 12px}
+  .kpi small{display:block;color:var(--mut);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+  .kpi b{font-size:1.22rem}
+  .bar{height:6px;border-radius:6px;background:var(--bd);margin-top:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--mut)}
+  .miss{margin-top:14px;background:var(--red-l);border:1px solid var(--red-bd);border-radius:12px;padding:12px 14px}
+  .miss strong{color:var(--red);display:flex;align-items:center;gap:8px}
+  .miss ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:.9rem}
+  .miss li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap} .miss code{background:var(--card);border:1px solid var(--red-bd);border-radius:6px;padding:1px 7px;font-weight:700;color:var(--red)}
+  .miss li span{color:var(--mut)} 
+  .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .btn2{background:var(--card);color:var(--blue);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font:inherit;font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;display:inline-block}
+  .btn2:hover{background:var(--blue-l)}
+  .note{background:var(--amb-l);border:1px solid var(--amb-bd);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:.92rem}
+  .note ul{margin:6px 0 0 18px;padding:0} .err{background:var(--red-l);border:1px solid var(--red-bd);color:var(--tx);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+  footer{text-align:center;color:var(--mut);font-size:.82rem;margin-top:26px}
 </style>
 </head>
 <body>
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg></div>
+    <div><h1>Reporte de producción Kosher</h1><p>Suba la bajada de stock y obtenga un reporte por cada fecha, con el formato del modelo.</p></div>
+  </div>
+</div></header>
+
 <main>
-  <h1>Reporte de producción · Kosher USA</h1>
-  <p class="sub">Suba la bajada de stock y se genera un archivo por cada fecha de producción, con el formato del modelo.</p>
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
 
-  {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
-
-  <form class="card" method="post" action="/generar" enctype="multipart/form-data">
-    <div class="row">
-      <label for="archivos">Bajada de stock (.xlsx) <span class="hint">· puede seleccionar varios archivos</span></label>
+  <form class="card" id="f" method="post" action="/generar" enctype="multipart/form-data">
+    <label class="drop" id="drop" for="archivos">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+      <strong>Arrastre la bajada de stock aquí o haga clic para elegirla</strong>
+      <span>Archivos .xlsx · puede seleccionar varios a la vez</span>
       <input id="archivos" type="file" name="archivos" accept=".xlsx" multiple required>
-    </div>
-    <div class="row">
-      <label for="destino">Destino a procesar</label>
-      <input id="destino" type="text" name="destino" value="{{ destino }}">
-    </div>
-    <details class="row">
-      <summary>Barcodes adicionales (opcional)</summary>
-      <label for="be" class="hint">Un código por línea: <code>FD227900,91-ARFRF</code>. Para dejarlos fijos, agréguelos a <code>barcodes.csv</code> en GitHub.</label>
-      <textarea id="be" name="barcodes_extra" placeholder="FD227900,91-XXXXX"></textarea>
+    </label>
+    <ul class="files" id="lista"></ul>
+
+    <details>
+      <summary>Opciones avanzadas</summary>
+      <div class="opt">
+        <div><label for="destino">Destino a procesar</label><input id="destino" type="text" name="destino" value="{{ destino }}"></div>
+        <div><label for="be">Barcodes adicionales <span class="hint">· uno por línea, ej. <code>FD227900,91-ARFRF</code> · solo para esta corrida</label>
+          <textarea id="be" name="barcodes_extra" placeholder="FD000000,91-XXXXX"></textarea></div>
+      </div>
     </details>
-    <button type="submit">Generar reportes</button>
+
+    <div class="go">
+      <button class="main" id="btn" type="submit"><span class="spin"></span><span id="btxt">Generar reportes</span></button>
+    </div>
+    <div class="wait">Procesando… la primera carga puede demorar unos segundos.</div>
   </form>
 
   {% if avisos %}
-  <div class="msg warn"><strong>Avisos</strong><ul>{% for a in avisos %}<li>{{ a }}</li>{% endfor %}</ul></div>
+  <div class="note"><strong>Avisos</strong><ul>{% for a in avisos %}<li>{{ a }}</li>{% endfor %}</ul></div>
   {% endif %}
 
   {% if resultados %}
-  <div class="card">
-    <h2 style="margin-top:0;font-size:1.1rem">Reportes generados</h2>
-    <table>
-      <thead><tr><th>Fecha</th><th>Productos</th><th>Cajas</th><th>Kg bruto</th><th>Kg neto</th><th>% Spiced</th><th></th></tr></thead>
-      <tbody>
-      {% for r in resultados %}
-        <tr><td>{{ r.fecha }}</td><td>{{ r.productos }}</td><td>{{ '{:,.0f}'.format(r.cajas).replace(',', '.') }}</td>
-            <td>{{ '{:,.3f}'.format(r.bruto).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
-            <td>{{ '{:,.3f}'.format(r.neto).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
-            <td>{{ '{:.2f}'.format(r.pct_spiced).replace('.', ',') }} %</td>
-            <td><a class="btn sec" href="/descargar/{{ token }}/{{ loop.index0 }}">Descargar</a></td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% for r in resultados if r.sin_barcode %}
-      <div class="msg warn" style="margin-top:14px"><strong>{{ r.fecha }} · productos sin barcode</strong> (incluidos al final de la lista):
-        <ul>{% for s in r.sin_barcode %}<li>{{ s.Codigo }} · {{ s.desc }} · {{ '%.0f'|format(s.cajas) }} cajas</li>{% endfor %}</ul></div>
+    {% set ns = namespace(faltan=[], desc={}) %}
+    {% for r in resultados %}{% for s in r.sin_barcode %}
+      {% if s.Codigo not in ns.faltan %}{% set ns.faltan = ns.faltan + [s.Codigo] %}{% endif %}
+    {% endfor %}{% endfor %}
+
+    {% if ns.faltan %}
+    <div class="banner bad">
+      <svg class="alarm" viewBox="0 0 48 48"><path d="M24 4L2 42h44z" fill="#d92d20"/><rect x="22" y="16" width="4" height="14" rx="2" fill="#fff"/><circle cx="24" cy="35" r="2.6" fill="#fff"/></svg>
+      <div><h2>Falta barcode en {{ ns.faltan|length }} producto{{ '' if ns.faltan|length == 1 else 's' }}</h2>
+        <p>Los reportes se generaron, pero esos productos quedaron sin barcode. Agréguelos a <code>barcodes.csv</code> para que salgan completos.</p></div>
+    </div>
+    {% else %}
+    <div class="banner ok">
+      <svg class="tick" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/><path d="M14 25l7 7 14-16"/></svg>
+      <div><h2>{{ resultados|length }} reporte{{ '' if resultados|length == 1 else 's' }} generado{{ '' if resultados|length == 1 else 's' }} correctamente</h2>
+        <p>Todos los productos tienen barcode.</p></div>
+    </div>
+    {% endif %}
+
+    {% for r in resultados %}
+    <section class="card rep {{ 'bad' if r.sin_barcode else '' }}">
+      <div class="rh">
+        <span class="date">{{ r.fecha }}</span>
+        {% if r.sin_barcode %}
+          <span class="tag bad"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22z" fill="#d92d20"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg>Falta barcode ({{ r.sin_barcode|length }})</span>
+        {% else %}
+          <span class="tag ok"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#16a34a"/><path d="M7 12.5l3.2 3.2L17 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Generado correctamente</span>
+        {% endif %}
+        <a class="dl" href="/descargar/{{ token }}/{{ loop.index0 }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Descargar</a>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><small>Productos</small><b>{{ r.productos }}</b></div>
+        <div class="kpi"><small>Cajas</small><b>{{ n0(r.cajas) }}</b></div>
+        <div class="kpi"><small>Kg bruto</small><b>{{ n3(r.bruto) }}</b></div>
+        <div class="kpi"><small>Kg neto</small><b>{{ n3(r.neto) }}</b></div>
+        <div class="kpi"><small>% Spiced</small><b>{{ n2(r.pct_spiced) }} %</b><div class="bar"><i style="width:{{ [r.pct_spiced,100]|min }}%"></i></div></div>
+      </div>
+      {% if r.sin_barcode %}
+      <div class="miss">
+        <strong><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2L1 21h22z" fill="#d92d20"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg>Productos sin barcode (incluidos al final de la lista)</strong>
+        <ul>{% for s in r.sin_barcode %}<li><code>{{ s.Codigo }}</code> {{ s.desc }} <span>· {{ '%.0f'|format(s.cajas) }} caja{{ '' if s.cajas == 1 else 's' }}</span></li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+    </section>
     {% endfor %}
-    {% if resultados|length > 1 %}<div class="acts"><a class="btn" href="/descargar-zip/{{ token }}">Descargar todos (.zip)</a></div>{% endif %}
-  </div>
+
+    {% if ns.faltan %}
+    <div class="card">
+      <h2>Para completar los barcodes</h2>
+      <p style="margin:0 0 10px;color:var(--mut);font-size:.92rem">Copie estas líneas, complete el barcode de cada código y péguelas al final de <code>barcodes.csv</code> en GitHub. Desde la próxima carga saldrán completos.</p>
+      <textarea id="lineas" readonly rows="{{ ns.faltan|length + 1 }}">{% for c in ns.faltan %}{{ c }},{{ '\n' if not loop.last }}{% endfor %}</textarea>
+      <div class="tools"><button type="button" class="btn2" id="copiar">Copiar códigos</button><span class="hint" id="ok"></span></div>
+    </div>
+    {% endif %}
+
+    {% if resultados|length > 1 %}
+    <div style="text-align:center"><a class="main" style="text-decoration:none" href="/descargar-zip/{{ token }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Descargar todos (.zip)</a></div>
+    {% endif %}
   {% endif %}
+
+  <footer>Los archivos se procesan en memoria y no se guardan.</footer>
 </main>
+
+<script>
+(function(){
+  var inp=document.getElementById('archivos'), drop=document.getElementById('drop'), lista=document.getElementById('lista');
+  function kb(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
+  function pintar(){
+    lista.innerHTML='';
+    Array.prototype.forEach.call(inp.files,function(f){
+      var li=document.createElement('li');
+      li.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
+      var n=document.createElement('span'); n.textContent=f.name; li.appendChild(n);
+      var s=document.createElement('small'); s.textContent=kb(f.size); li.appendChild(s);
+      lista.appendChild(li);
+    });
+  }
+  inp.addEventListener('change',pintar);
+  ['dragenter','dragover'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.add('over');});});
+  ['dragleave','drop'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.remove('over');});});
+  drop.addEventListener('drop',function(ev){ if(ev.dataTransfer&&ev.dataTransfer.files.length){inp.files=ev.dataTransfer.files;pintar();} });
+  var f=document.getElementById('f'), b=document.getElementById('btn');
+  f.addEventListener('submit',function(){ b.classList.add('loading'); b.disabled=true; document.getElementById('btxt').textContent='Generando…'; });
+  var c=document.getElementById('copiar');
+  if(c){c.addEventListener('click',function(){var t=document.getElementById('lineas');t.select();
+    try{document.execCommand('copy');}catch(e){} if(navigator.clipboard){navigator.clipboard.writeText(t.value);} document.getElementById('ok').textContent='Copiado';});}
+})();
+</script>
 </body>
 </html>
