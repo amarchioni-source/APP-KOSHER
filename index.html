@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporte de producción · Kosher USA</title>
+<style>
+  :root{--bg:#f4f6f8;--card:#fff;--tx:#1d2733;--mut:#5f6c7b;--ac:#1f5fa8;--bd:#d9e0e7;--warn:#fff4d6;--wbd:#e8c766;--err:#fde8e8;--ebd:#e19b9b}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+  main{max-width:900px;margin:0 auto;padding:28px 18px 60px}
+  h1{font-size:1.45rem;margin:0 0 4px} p.sub{margin:0 0 22px;color:var(--mut)}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:20px;margin-bottom:18px}
+  label{display:block;font-weight:600;margin:0 0 6px} .hint{font-weight:400;color:var(--mut);font-size:.88rem}
+  input[type=text],textarea{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:6px;font:inherit}
+  textarea{min-height:70px;font-family:ui-monospace,Consolas,monospace;font-size:.9rem}
+  input[type=file]{width:100%;padding:12px;border:1px dashed var(--bd);border-radius:6px;background:#fafbfc}
+  .row{margin-bottom:16px} details summary{cursor:pointer;color:var(--ac);font-weight:600;margin-bottom:10px}
+  button,.btn{background:var(--ac);color:#fff;border:0;border-radius:6px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+  .btn.sec{background:#e8eef5;color:var(--ac)}
+  table{width:100%;border-collapse:collapse;font-size:.92rem} th,td{padding:8px 6px;border-bottom:1px solid var(--bd);text-align:right}
+  th:first-child,td:first-child{text-align:left} th{color:var(--mut);font-weight:600}
+  .msg{border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:.93rem} .warn{background:var(--warn);border:1px solid var(--wbd)} .err{background:var(--err);border:1px solid var(--ebd)}
+  ul{margin:6px 0 0 18px;padding:0} .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Reporte de producción · Kosher USA</h1>
+  <p class="sub">Suba la bajada de stock y se genera un archivo por cada fecha de producción, con el formato del modelo.</p>
+
+  {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+
+  <form class="card" method="post" action="/generar" enctype="multipart/form-data">
+    <div class="row">
+      <label for="archivos">Bajada de stock (.xlsx) <span class="hint">· puede seleccionar varios archivos</span></label>
+      <input id="archivos" type="file" name="archivos" accept=".xlsx" multiple required>
+    </div>
+    <div class="row">
+      <label for="destino">Destino a procesar</label>
+      <input id="destino" type="text" name="destino" value="{{ destino }}">
+    </div>
+    <details class="row">
+      <summary>Barcodes adicionales (opcional)</summary>
+      <label for="be" class="hint">Un código por línea: <code>FD227900,91-ARFRF</code>. Para dejarlos fijos, agréguelos a <code>barcodes.csv</code> en GitHub.</label>
+      <textarea id="be" name="barcodes_extra" placeholder="FD227900,91-XXXXX"></textarea>
+    </details>
+    <button type="submit">Generar reportes</button>
+  </form>
+
+  {% if avisos %}
+  <div class="msg warn"><strong>Avisos</strong><ul>{% for a in avisos %}<li>{{ a }}</li>{% endfor %}</ul></div>
+  {% endif %}
+
+  {% if resultados %}
+  <div class="card">
+    <h2 style="margin-top:0;font-size:1.1rem">Reportes generados</h2>
+    <table>
+      <thead><tr><th>Fecha</th><th>Productos</th><th>Cajas</th><th>Kg bruto</th><th>Kg neto</th><th>% Spiced</th><th></th></tr></thead>
+      <tbody>
+      {% for r in resultados %}
+        <tr><td>{{ r.fecha }}</td><td>{{ r.productos }}</td><td>{{ '{:,.0f}'.format(r.cajas).replace(',', '.') }}</td>
+            <td>{{ '{:,.3f}'.format(r.bruto).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
+            <td>{{ '{:,.3f}'.format(r.neto).replace(',', 'X').replace('.', ',').replace('X', '.') }}</td>
+            <td>{{ '{:.2f}'.format(r.pct_spiced).replace('.', ',') }} %</td>
+            <td><a class="btn sec" href="/descargar/{{ token }}/{{ loop.index0 }}">Descargar</a></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% for r in resultados if r.sin_barcode %}
+      <div class="msg warn" style="margin-top:14px"><strong>{{ r.fecha }} · productos sin barcode</strong> (incluidos al final de la lista):
+        <ul>{% for s in r.sin_barcode %}<li>{{ s.Codigo }} · {{ s.desc }} · {{ '%.0f'|format(s.cajas) }} cajas</li>{% endfor %}</ul></div>
+    {% endfor %}
+    {% if resultados|length > 1 %}<div class="acts"><a class="btn" href="/descargar-zip/{{ token }}">Descargar todos (.zip)</a></div>{% endif %}
+  </div>
+  {% endif %}
+</main>
+</body>
+</html>
