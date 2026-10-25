@@ -155,6 +155,10 @@ def normalizar(df):
         ren["kg"] = "Peso"
     if "kg bruto" in df.columns:
         ren["kg bruto"] = "PesoBruto"
+    if "cartons" in df.columns and "Unidad" not in df.columns:      # bajada por cartón (cartons / peso neto)
+        ren["cartons"] = "Unidad"
+    if "peso neto" in df.columns and "Peso" not in df.columns:
+        ren["peso neto"] = "Peso"
     df = df.rename(columns=ren)
     faltan = [c for c in REQUERIDAS if c not in df.columns]
     if faltan:
