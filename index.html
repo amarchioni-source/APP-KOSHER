@@ -1,6 +1,3 @@
-{%- macro n0(x) -%}{{ '{:,.0f}'.format(x).replace(',', '.') }}{%- endmacro -%}
-{%- macro n3(x) -%}{{ '{:,.3f}'.format(x).replace(',', 'X').replace('.', ',').replace('X', '.') }}{%- endmacro -%}
-{%- macro n2(x) -%}{{ '{:.2f}'.format(x).replace('.', ',') }}{%- endmacro -%}
 <!doctype html>
 <html lang="es">
 <head>
@@ -19,12 +16,13 @@
   }
   @media (prefers-color-scheme: dark){
     :root{--bg:#0c1320; --card:#121c2e; --tx:#e8eef8; --mut:#93a3bb; --bd:#22314a; --soft:#0f192a;
-      --blue:#5b8dff; --blue-d:#7da3ff; --blue-l:#16264a; --green:#3ccf6e; --green-t:#5be08a; --green-l:#12301f; --green-bd:#245c3a; --red:#ff6b5e; --red-l:#341a1a; --red-bd:#6e2f2b;
-      --amb:#f0b650; --amb-l:#2d2410; --amb-bd:#5d4a1c; --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}
+      --blue:#5b8dff; --blue-d:#7da3ff; --blue-l:#16264a; --green:#3ccf6e; --green-t:#5be08a; --green-l:#12301f; --green-bd:#245c3a;
+      --red:#ff6b5e; --red-l:#341a1a; --red-bd:#6e2f2b; --amb:#f0b650; --amb-l:#2d2410; --amb-bd:#5d4a1c;
+      --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45}
-  .top{background:var(--card);border-bottom:1px solid var(--bd);color:var(--tx);padding:22px 20px}
+  .top{background:var(--card);border-bottom:1px solid var(--bd);padding:22px 20px}
   .wrap{max-width:960px;margin:0 auto}
   .brand{display:flex;align-items:center;gap:14px}
   .logo{width:46px;height:46px;border-radius:12px;background:var(--green-l);color:var(--green);display:grid;place-items:center;flex:none}
@@ -33,9 +31,19 @@
   main{max-width:960px;margin:24px auto 60px;padding:0 20px}
   .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);padding:22px;margin-bottom:18px}
   h2{font-size:1.05rem;margin:0 0 14px}
+  h3.sec{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:26px 2px 10px}
+
+  /* selector de informe */
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--soft);border:1px solid var(--bd);border-radius:14px;padding:5px;margin-bottom:6px}
+  .seg label{margin:0;cursor:pointer}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg span{display:block;text-align:center;padding:10px 8px;border-radius:10px;font-weight:700;color:var(--mut);transition:.15s}
+  .seg input:checked + span{background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(15,27,45,.15);outline:1px solid var(--bd)}
+  .seg input:focus-visible + span{outline:2px solid var(--blue)}
+  #tipo-ayuda{color:var(--mut);font-size:.88rem;margin:0 2px 16px;min-height:1.3em}
 
   /* carga */
-  .drop{font-weight:400;border:2px dashed var(--bd);border-radius:14px;background:var(--soft);padding:30px 18px;text-align:center;cursor:pointer;transition:.15s}
+  .drop{font-weight:400;border:2px dashed var(--bd);border-radius:14px;background:var(--soft);padding:30px 18px;text-align:center;cursor:pointer;transition:.15s;display:block;margin:0}
   .drop:hover,.drop.over{border-color:var(--blue);background:var(--blue-l)}
   .drop svg{color:var(--blue)} .drop strong{display:block;margin:8px 0 2px;font-size:1.02rem}
   .drop span{color:var(--mut);font-size:.9rem}
@@ -84,12 +92,15 @@
   .miss strong{color:var(--red);display:flex;align-items:center;gap:8px}
   .miss ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:.9rem}
   .miss li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap} .miss code{background:var(--card);border:1px solid var(--red-bd);border-radius:6px;padding:1px 7px;font-weight:700;color:var(--red)}
-  .miss li span{color:var(--mut)} 
+  .miss li span,.ayuda{color:var(--mut)} .ayuda{margin:8px 0 0;font-size:.84rem}
+  .nota{margin-top:10px;background:var(--amb-l);border:1px solid var(--amb-bd);border-radius:12px;padding:9px 13px;font-size:.88rem}
   .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
   .btn2{background:var(--card);color:var(--blue);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font:inherit;font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;display:inline-block}
   .btn2:hover{background:var(--blue-l)}
   .note{background:var(--amb-l);border:1px solid var(--amb-bd);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:.92rem}
   .note ul{margin:6px 0 0 18px;padding:0} .err{background:var(--red-l);border:1px solid var(--red-bd);color:var(--tx);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+  .ctl ul{margin:0 0 10px 18px;padding:0;font-size:.92rem} .ctl details{margin:0 0 12px;font-size:.9rem}
+  .ctl table{border-collapse:collapse;margin-top:8px;font-size:.88rem} .ctl td{padding:3px 14px 3px 0;border-bottom:1px solid var(--bd)}
   footer{text-align:center;color:var(--mut);font-size:.82rem;margin-top:26px}
 </style>
 </head>
@@ -97,7 +108,7 @@
 <header class="top"><div class="wrap">
   <div class="brand">
     <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg></div>
-    <div><h1>Reporte de producción Kosher</h1><p>Suba la bajada de stock y obtenga un reporte por cada fecha, con el formato del modelo.</p></div>
+    <div><h1>Reporte de producción Kosher</h1><p>Suba la bajada de stock y obtenga el informe de USA, de Israel o ambos.</p></div>
   </div>
 </div></header>
 
@@ -105,6 +116,13 @@
   {% if error %}<div class="err">{{ error }}</div>{% endif %}
 
   <form class="card" id="f" method="post" action="/generar" enctype="multipart/form-data">
+    <div class="seg" role="radiogroup" aria-label="Informe a generar">
+      <label><input type="radio" name="tipo" value="usa" {{ 'checked' if tipo == 'usa' }}><span>USA</span></label>
+      <label><input type="radio" name="tipo" value="israel" {{ 'checked' if tipo == 'israel' }}><span>Israel</span></label>
+      <label><input type="radio" name="tipo" value="ambos" {{ 'checked' if tipo == 'ambos' }}><span>Ambos</span></label>
+    </div>
+    <p id="tipo-ayuda"></p>
+
     <label class="drop" id="drop" for="archivos">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
       <strong>Arrastre la bajada de stock aquí o haga clic para elegirla</strong>
@@ -116,9 +134,11 @@
     <details>
       <summary>Opciones avanzadas</summary>
       <div class="opt">
-        <div><label for="destino">Destino a procesar</label><input id="destino" type="text" name="destino" value="{{ destino }}"></div>
-        <div><label for="be">Barcodes adicionales <span class="hint">· uno por línea, ej. <code>FD227900,91-ARFRF</code> · solo para esta corrida</label>
+        <div><label for="destino">Destino a procesar <span class="hint">· informe USA</span></label><input id="destino" type="text" name="destino" value="{{ destino }}"></div>
+        <div><label for="be">Barcodes adicionales <span class="hint">· informe USA · uno por línea, ej. <code>FD227900,91-ARFRF</code> · solo para esta corrida</span></label>
           <textarea id="be" name="barcodes_extra" placeholder="FD000000,91-XXXXX"></textarea></div>
+        <div><label for="ie">Índices adicionales <span class="hint">· informe Israel · <code>CODIGO,indice,barcode</code> · solo para esta corrida</span></label>
+          <textarea id="ie" name="indices_extra" placeholder="CD000000,12345,7290000000000"></textarea></div>
       </div>
     </details>
 
@@ -133,62 +153,84 @@
   {% endif %}
 
   {% if resultados %}
-    {% set ns = namespace(faltan=[], desc={}) %}
-    {% for r in resultados %}{% for s in r.sin_barcode %}
-      {% if s.Codigo not in ns.faltan %}{% set ns.faltan = ns.faltan + [s.Codigo] %}{% endif %}
-    {% endfor %}{% endfor %}
-
-    {% if ns.faltan %}
+    {% set con_alarma = resultados|selectattr('alarmas')|list|length %}
+    {% if con_alarma %}
     <div class="banner bad">
       <svg class="alarm" viewBox="0 0 48 48"><path d="M24 4L2 42h44z" fill="#d92d20"/><rect x="22" y="16" width="4" height="14" rx="2" fill="#fff"/><circle cx="24" cy="35" r="2.6" fill="#fff"/></svg>
-      <div><h2>Falta barcode en {{ ns.faltan|length }} producto{{ '' if ns.faltan|length == 1 else 's' }}</h2>
-        <p>Los reportes se generaron, pero esos productos quedaron sin barcode. Agréguelos a <code>barcodes.csv</code> para que salgan completos.</p></div>
+      <div><h2>Hay datos pendientes en {{ con_alarma }} de {{ resultados|length }} reporte{{ '' if resultados|length == 1 else 's' }}</h2>
+        <p>Los reportes se generaron, pero tienen celdas vacías por completar (barcode, índice o fecha de vencimiento). El detalle está en cada reporte.</p></div>
     </div>
     {% else %}
     <div class="banner ok">
       <svg class="tick" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/><path d="M14 25l7 7 14-16"/></svg>
       <div><h2>{{ resultados|length }} reporte{{ '' if resultados|length == 1 else 's' }} generado{{ '' if resultados|length == 1 else 's' }} correctamente</h2>
-        <p>Todos los productos tienen barcode.</p></div>
+        <p>Sin datos pendientes.</p></div>
     </div>
     {% endif %}
 
-    {% for r in resultados %}
-    <section class="card rep {{ 'bad' if r.sin_barcode else '' }}">
-      <div class="rh">
-        <span class="date">{{ r.fecha }}</span>
-        {% if r.sin_barcode %}
-          <span class="tag bad"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22z" fill="#d92d20"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg>Falta barcode ({{ r.sin_barcode|length }})</span>
-        {% else %}
-          <span class="tag ok"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#16a34a"/><path d="M7 12.5l3.2 3.2L17 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Generado correctamente</span>
-        {% endif %}
-        <a class="dl" href="/descargar/{{ token }}/{{ loop.index0 }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Descargar</a>
-      </div>
-      <div class="kpis">
-        <div class="kpi"><small>Productos</small><b>{{ r.productos }}</b></div>
-        <div class="kpi"><small>Cajas</small><b>{{ n0(r.cajas) }}</b></div>
-        <div class="kpi"><small>Kg bruto</small><b>{{ n3(r.bruto) }}</b></div>
-        <div class="kpi"><small>Kg neto</small><b>{{ n3(r.neto) }}</b></div>
-        <div class="kpi"><small>% Spiced</small><b>{{ n2(r.pct_spiced) }} %</b><div class="bar"><i style="width:{{ [r.pct_spiced,100]|min }}%"></i></div></div>
-      </div>
-      {% if r.sin_barcode %}
-      <div class="miss">
-        <strong><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2L1 21h22z" fill="#d92d20"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg>Productos sin barcode (incluidos al final de la lista)</strong>
-        <ul>{% for s in r.sin_barcode %}<li><code>{{ s.Codigo }}</code> {{ s.desc }} <span>· {{ '%.0f'|format(s.cajas) }} caja{{ '' if s.cajas == 1 else 's' }}</span></li>{% endfor %}</ul>
-      </div>
+    {% for t, titulo in [('usa', 'Informe USA'), ('israel', 'Informe Israel')] %}
+      {% set grupo = resultados|selectattr('tipo', 'equalto', t)|list %}
+      {% if grupo %}
+      <h3 class="sec">{{ titulo }} · {{ grupo|length }} reporte{{ '' if grupo|length == 1 else 's' }}</h3>
+      {% for r in grupo %}
+      <section class="card rep {{ 'bad' if r.alarmas else '' }}">
+        <div class="rh">
+          <span class="date">{{ r.fecha }}</span>
+          {% if r.alarmas %}
+            <span class="tag bad"><svg viewBox="0 0 24 24"><path d="M12 2L1 21h22z" fill="#d92d20"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg>{{ r.etiqueta }}</span>
+          {% else %}
+            <span class="tag ok"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#16a34a"/><path d="M7 12.5l3.2 3.2L17 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Generado correctamente</span>
+          {% endif %}
+          <a class="dl" href="/descargar/{{ token }}/{{ r.idx }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Descargar</a>
+        </div>
+        <div class="kpis">
+          {% for k, v in r.kpis %}
+          <div class="kpi"><small>{{ k }}</small><b>{{ v }}</b>{% if k == '% Spiced' and r.pct is not none %}<div class="bar"><i style="width:{{ [r.pct,100]|min }}%"></i></div>{% endif %}</div>
+          {% endfor %}
+        </div>
+        {% for a in r.alarmas %}
+        <div class="miss">
+          <strong><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2L1 21h22z" fill="#d92d20"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg>{{ a.titulo }}</strong>
+          <ul>{% for l in a.lineas %}<li>{% if l.cod %}<code>{{ l.cod }}</code>{% endif %} {{ l.texto }}{% if l.extra %} <span>· {{ l.extra }}</span>{% endif %}</li>{% endfor %}</ul>
+          {% if a.ayuda %}<p class="ayuda">{{ a.ayuda }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% for n in r.notas %}<div class="nota">{{ n }}</div>{% endfor %}
+      </section>
+      {% endfor %}
       {% endif %}
-    </section>
     {% endfor %}
 
-    {% if ns.faltan %}
+    {% if control_idx is not none %}
+    <section class="card ctl">
+      <div class="rh" style="margin-bottom:10px"><h2 style="margin:0">Control del informe de Israel</h2>
+        <a class="dl" href="/descargar/{{ token }}/{{ control_idx }}">Descargar control (.xlsx)</a></div>
+      {% if control_lineas %}<ul>{% for l in control_lineas %}<li>{{ l }}</li>{% endfor %}</ul>{% else %}<p style="margin:0 0 10px;color:var(--mut)">Sin líneas excluidas ni días sin producción.</p>{% endif %}
+      {% if excl_desc %}
+      <details><summary>Ver descripciones excluidas ({{ excl_desc|length }})</summary>
+        <table>{% for e in excl_desc %}<tr><td>{{ e.desc }}</td><td>{{ e.cartones }}</td></tr>{% endfor %}</table></details>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if n_pend_usa %}
     <div class="card">
-      <h2>Para completar los barcodes</h2>
+      <h2>Para completar los barcodes de USA</h2>
       <p style="margin:0 0 10px;color:var(--mut);font-size:.92rem">Copie estas líneas, complete el barcode de cada código y péguelas al final de <code>barcodes.csv</code> en GitHub. Desde la próxima carga saldrán completos.</p>
-      <textarea id="lineas" readonly rows="{{ ns.faltan|length + 1 }}">{% for c in ns.faltan %}{{ c }},{{ '\n' if not loop.last }}{% endfor %}</textarea>
-      <div class="tools"><button type="button" class="btn2" id="copiar">Copiar códigos</button><span class="hint" id="ok"></span></div>
+      <textarea id="lineas-usa" readonly rows="{{ n_pend_usa + 1 }}">{{ pend_usa }}</textarea>
+      <div class="tools"><button type="button" class="btn2 copiar" data-t="lineas-usa">Copiar códigos</button><span class="hint"></span></div>
+    </div>
+    {% endif %}
+    {% if n_pend_israel %}
+    <div class="card">
+      <h2>Para completar los índices de Israel</h2>
+      <p style="margin:0 0 10px;color:var(--mut);font-size:.92rem">Copie estas líneas, complete el índice NETO y el barcode (columnas 2 y 3) y péguelas al final de <code>indices_israel.csv</code> en GitHub.</p>
+      <textarea id="lineas-isr" readonly rows="{{ n_pend_israel + 1 }}">{{ pend_israel }}</textarea>
+      <div class="tools"><button type="button" class="btn2 copiar" data-t="lineas-isr">Copiar códigos</button><span class="hint"></span></div>
     </div>
     {% endif %}
 
-    {% if resultados|length > 1 %}
+    {% if nfiles > 1 %}
     <div style="text-align:center"><a class="main" style="text-decoration:none" href="/descargar-zip/{{ token }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Descargar todos (.zip)</a></div>
     {% endif %}
   {% endif %}
@@ -214,11 +256,21 @@
   ['dragenter','dragover'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.add('over');});});
   ['dragleave','drop'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.remove('over');});});
   drop.addEventListener('drop',function(ev){ if(ev.dataTransfer&&ev.dataTransfer.files.length){inp.files=ev.dataTransfer.files;pintar();} });
+
+  var ayudas={usa:'Informe agrupado por producto: cajas, kg y % Spiced.',
+              israel:'Informe por cartón, con código de caja y fecha de vencimiento.',
+              ambos:'Genera los dos informes a partir del mismo archivo.'};
+  var ay=document.getElementById('tipo-ayuda');
+  function tipo(){var r=document.querySelector('input[name=tipo]:checked');ay.textContent=r?ayudas[r.value]:'';}
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=tipo]'),function(r){r.addEventListener('change',tipo);}); tipo();
+
   var f=document.getElementById('f'), b=document.getElementById('btn');
   f.addEventListener('submit',function(){ b.classList.add('loading'); b.disabled=true; document.getElementById('btxt').textContent='Generando…'; });
-  var c=document.getElementById('copiar');
-  if(c){c.addEventListener('click',function(){var t=document.getElementById('lineas');t.select();
-    try{document.execCommand('copy');}catch(e){} if(navigator.clipboard){navigator.clipboard.writeText(t.value);} document.getElementById('ok').textContent='Copiado';});}
+  Array.prototype.forEach.call(document.querySelectorAll('.copiar'),function(c){
+    c.addEventListener('click',function(){var t=document.getElementById(c.getAttribute('data-t'));t.select();
+      try{document.execCommand('copy');}catch(e){} if(navigator.clipboard){navigator.clipboard.writeText(t.value);}
+      c.nextElementSibling.textContent='Copiado';});
+  });
 })();
 </script>
 </body>
