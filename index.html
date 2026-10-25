@@ -5,8 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reporte de producción · Kosher</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2316a34a'/%3E%3Cpath d='M18 33l10 10 18-22' fill='none' stroke='white' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('tema')==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}</script>
 <style>
   :root{
+    color-scheme:dark;
+    --bg:#0c1320; --card:#121c2e; --tx:#e8eef8; --mut:#93a3bb; --bd:#22314a; --soft:#0f192a;
+    --blue:#5b8dff; --blue-d:#7da3ff; --blue-l:#16264a;
+    --green:#3ccf6e; --green-t:#5be08a; --green-l:#12301f; --green-bd:#245c3a;
+    --red:#ff6b5e; --red-l:#341a1a; --red-bd:#6e2f2b;
+    --amb:#f0b650; --amb-l:#2d2410; --amb-bd:#5d4a1c;
+    --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+  :root[data-theme="light"]{
+    color-scheme:light;
     --bg:#f3f6fb; --card:#ffffff; --tx:#0f1b2d; --mut:#5b6b82; --bd:#e1e8f1; --soft:#f7f9fc;
     --blue:#2563eb; --blue-d:#1d4ed8; --blue-l:#e8f0ff;
     --green:#16a34a; --green-t:#15803d; --green-l:#e8f7ee; --green-bd:#a9dcbc;
@@ -14,18 +25,15 @@
     --amb:#a15c00; --amb-l:#fff6e0; --amb-bd:#f0d28a;
     --sh:0 1px 2px rgba(15,27,45,.05),0 8px 24px rgba(15,27,45,.06);
   }
-  @media (prefers-color-scheme: dark){
-    :root{--bg:#0c1320; --card:#121c2e; --tx:#e8eef8; --mut:#93a3bb; --bd:#22314a; --soft:#0f192a;
-      --blue:#5b8dff; --blue-d:#7da3ff; --blue-l:#16264a; --green:#3ccf6e; --green-t:#5be08a; --green-l:#12301f; --green-bd:#245c3a;
-      --red:#ff6b5e; --red-l:#341a1a; --red-bd:#6e2f2b; --amb:#f0b650; --amb-l:#2d2410; --amb-bd:#5d4a1c;
-      --sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25)}
-  }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.45}
   .top{background:var(--card);border-bottom:1px solid var(--bd);padding:22px 20px}
   .wrap{max-width:960px;margin:0 auto}
   .brand{display:flex;align-items:center;gap:14px}
   .logo{width:46px;height:46px;border-radius:12px;background:var(--green-l);color:var(--green);display:grid;place-items:center;flex:none}
+  .tema{margin-left:auto;width:42px;height:42px;border-radius:12px;border:1px solid var(--bd);background:var(--soft);color:var(--tx);cursor:pointer;display:grid;place-items:center;flex:none;transition:.15s}
+  .tema:hover{border-color:var(--blue);color:var(--blue)}
+  :root[data-theme="light"] .i-sun,:root:not([data-theme="light"]) .i-moon{display:none}
   .brand h1{margin:0;font-size:1.5rem;letter-spacing:-.01em}
   .brand p{margin:2px 0 0;color:var(--mut);font-size:.95rem}
   main{max-width:960px;margin:24px auto 60px;padding:0 20px}
@@ -33,14 +41,33 @@
   h2{font-size:1.05rem;margin:0 0 14px}
   h3.sec{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:26px 2px 10px}
 
+  /* pasos */
+  .step{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.02rem;margin:0 0 12px}
+  .step b{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:.85rem;flex:none}
+  .step small{color:var(--mut);font-weight:400;font-size:.88rem}
   /* selector de informe */
-  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--soft);border:1px solid var(--bd);border-radius:14px;padding:5px;margin-bottom:6px}
-  .seg label{margin:0;cursor:pointer}
-  .seg input{position:absolute;opacity:0;pointer-events:none}
-  .seg span{display:block;text-align:center;padding:10px 8px;border-radius:10px;font-weight:700;color:var(--mut);transition:.15s}
-  .seg input:checked + span{background:var(--card);color:var(--blue);box-shadow:0 1px 4px rgba(15,27,45,.15);outline:1px solid var(--bd)}
-  .seg input:focus-visible + span{outline:2px solid var(--blue)}
-  #tipo-ayuda{color:var(--mut);font-size:.88rem;margin:0 2px 16px;min-height:1.3em}
+  .picks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+  .pick{margin:0;cursor:pointer;font-weight:400;font-size:inherit;display:block}
+  .pick input{position:absolute;opacity:0;pointer-events:none}
+  .pick[data-c=usa]{--c:#2f6df6;--c2:#5b8dff;--glow:rgba(47,109,246,.45)}
+  .pick[data-c=israel]{--c:#0e9fbc;--c2:#27c9e6;--glow:rgba(14,159,188,.45)}
+  .pick[data-c=ambos]{--c:#8b3cf0;--c2:#b06cff;--glow:rgba(139,60,240,.45)}
+  .box{position:relative;display:flex;flex-direction:column;gap:4px;height:100%;padding:16px 16px 14px;border:2px solid var(--bd);border-radius:14px;background:var(--card);transition:.15s;overflow:hidden}
+  .box::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--c),var(--c2))}
+  .pick:hover .box{border-color:var(--c2);transform:translateY(-2px)}
+  .box .ico{width:32px;height:32px;color:var(--c2);margin:4px 0;transition:.15s}
+  .box strong{font-size:1.1rem}
+  .box small{color:var(--mut);font-size:.84rem;line-height:1.35;transition:.15s}
+  .chk{position:absolute;top:14px;right:10px;width:24px;height:24px;border-radius:50%;border:2px solid var(--bd);display:grid;place-items:center;transition:.15s}
+  .chk svg{width:14px;height:14px;fill:none;stroke:var(--c);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+  .pick input:checked + .box{background:linear-gradient(135deg,var(--c),var(--c2));border-color:transparent;color:#fff;box-shadow:0 10px 26px var(--glow)}
+  .pick input:checked + .box::before{background:rgba(255,255,255,.55)}
+  .pick input:checked + .box .ico{color:#fff}
+  .pick input:checked + .box small{color:rgba(255,255,255,.92)}
+  .pick input:checked + .box .chk{background:#fff;border-color:#fff}
+  .pick input:checked + .box .chk svg{opacity:1}
+  .pick input:focus-visible + .box{outline:2px solid var(--c2);outline-offset:2px}
+  @media (max-width:640px){.picks{grid-template-columns:1fr}}
 
   /* carga */
   .drop{font-weight:400;border:2px dashed var(--bd);border-radius:14px;background:var(--soft);padding:30px 18px;text-align:center;cursor:pointer;transition:.15s;display:block;margin:0}
@@ -61,6 +88,8 @@
   .go{margin-top:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   button.main,a.main{background:var(--blue);color:#fff;border:0;border-radius:12px;padding:13px 24px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:.15s;box-shadow:0 4px 14px rgba(37,99,235,.35)}
   button.main:hover,a.main:hover{background:var(--blue-d)} button.main:disabled{opacity:.75;cursor:wait}
+  #btn{background:linear-gradient(135deg,var(--c,#2f6df6),var(--c2,#5b8dff));box-shadow:0 6px 18px var(--glow,rgba(47,109,246,.4))}
+  #btn:hover{filter:brightness(1.1)}
   .spin{width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:r .8s linear infinite;display:none}
   .loading .spin{display:inline-block} @keyframes r{to{transform:rotate(360deg)}}
   .wait{color:var(--mut);font-size:.88rem;display:none} .loading ~ .wait{display:block}
@@ -109,6 +138,10 @@
   <div class="brand">
     <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg></div>
     <div><h1>Reporte de producción Kosher</h1><p>Suba la bajada de stock y obtenga el informe de USA, de Israel o ambos.</p></div>
+    <button type="button" id="tema" class="tema" aria-label="Cambiar entre tema oscuro y claro" title="Cambiar tema">
+      <svg class="i-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="i-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
   </div>
 </div></header>
 
@@ -116,13 +149,23 @@
   {% if error %}<div class="err">{{ error }}</div>{% endif %}
 
   <form class="card" id="f" method="post" action="/generar" enctype="multipart/form-data">
-    <div class="seg" role="radiogroup" aria-label="Informe a generar">
-      <label><input type="radio" name="tipo" value="usa" {{ 'checked' if tipo == 'usa' }}><span>USA</span></label>
-      <label><input type="radio" name="tipo" value="israel" {{ 'checked' if tipo == 'israel' }}><span>Israel</span></label>
-      <label><input type="radio" name="tipo" value="ambos" {{ 'checked' if tipo == 'ambos' }}><span>Ambos</span></label>
+    <div class="step"><b>1</b>Elija el informe</div>
+    <div class="picks" role="radiogroup" aria-label="Informe a generar">
+      <label class="pick" data-c="usa"><input type="radio" name="tipo" value="usa" {{ 'checked' if tipo == 'usa' }}>
+        <span class="box"><span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>
+          <strong>USA</strong><small>Informe agrupado por producto: cajas, kg y % Spiced.</small></span></label>
+      <label class="pick" data-c="israel"><input type="radio" name="tipo" value="israel" {{ 'checked' if tipo == 'israel' }}>
+        <span class="box"><span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+          <strong>Israel</strong><small>Informe cartón por cartón, con código de caja y fecha de vencimiento.</small></span></label>
+      <label class="pick" data-c="ambos"><input type="radio" name="tipo" value="ambos" {{ 'checked' if tipo == 'ambos' }}>
+        <span class="box"><span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="12" height="15" rx="2"/><path d="M16 21H6a2 2 0 0 1-2-2V8"/><path d="M12 8h4M12 12h4"/></svg>
+          <strong>Ambos</strong><small>Los dos informes a partir del mismo archivo.</small></span></label>
     </div>
-    <p id="tipo-ayuda"></p>
 
+    <div class="step"><b>2</b>Suba la bajada de stock <small>· puede elegir varios archivos</small></div>
     <label class="drop" id="drop" for="archivos">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
       <strong>Arrastre la bajada de stock aquí o haga clic para elegirla</strong>
@@ -143,7 +186,7 @@
     </details>
 
     <div class="go">
-      <button class="main" id="btn" type="submit"><span class="spin"></span><span id="btxt">Generar reportes</span></button>
+      <button class="main" id="btn" type="submit"><span class="spin"></span><span id="btxt">Generar informe</span></button>
     </div>
     <div class="wait">Procesando… la primera carga puede demorar unos segundos.</div>
   </form>
@@ -257,11 +300,12 @@
   ['dragleave','drop'].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.remove('over');});});
   drop.addEventListener('drop',function(ev){ if(ev.dataTransfer&&ev.dataTransfer.files.length){inp.files=ev.dataTransfer.files;pintar();} });
 
-  var ayudas={usa:'Informe agrupado por producto: cajas, kg y % Spiced.',
-              israel:'Informe por cartón, con código de caja y fecha de vencimiento.',
-              ambos:'Genera los dos informes a partir del mismo archivo.'};
-  var ay=document.getElementById('tipo-ayuda');
-  function tipo(){var r=document.querySelector('input[name=tipo]:checked');ay.textContent=r?ayudas[r.value]:'';}
+  document.getElementById('tema').addEventListener('click',function(){var el=document.documentElement,n=el.getAttribute('data-theme')==='light'?'dark':'light';el.setAttribute('data-theme',n);try{localStorage.setItem('tema',n);}catch(e){}});
+  var textos={usa:'Generar informe USA',israel:'Generar informe Israel',ambos:'Generar ambos informes'};
+  var colores={usa:['#2f6df6','#5b8dff','rgba(47,109,246,.45)'],israel:['#0e9fbc','#27c9e6','rgba(14,159,188,.45)'],ambos:['#8b3cf0','#b06cff','rgba(139,60,240,.45)']};
+  function tipo(){var r=document.querySelector('input[name=tipo]:checked'),bt=document.getElementById('btn'),fm=document.getElementById('f');
+    if(r){var c=colores[r.value];fm.style.setProperty('--c',c[0]);fm.style.setProperty('--c2',c[1]);fm.style.setProperty('--glow',c[2]);
+      if(!bt.classList.contains('loading')){document.getElementById('btxt').textContent=textos[r.value];}}}
   Array.prototype.forEach.call(document.querySelectorAll('input[name=tipo]'),function(r){r.addEventListener('change',tipo);}); tipo();
 
   var f=document.getElementById('f'), b=document.getElementById('btn');
